@@ -23,7 +23,21 @@ jobs:
       - name: Run 9 Windows Commands in Succession
         shell: cmd
         run: |
-          echo "=== Command 1: Setup and Configure ngrok ==="
+          echo "=== Command 1: Enable Remote Desktop and Create User ==="
+          echo "Enabling Remote Desktop..."
+          reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+          echo "Configuring Windows Firewall for RDP..."
+          netsh advfirewall firewall set rule group="remote desktop" new enable=Yes
+          echo "Remote Desktop enabled successfully"
+          echo "Creating user 'rdpuser' with password 'RDPPass123!'..."
+          net user rdpuser RDPPass123! /add
+          echo "Adding user to Remote Desktop Users group..."
+          net localgroup "Remote Desktop Users" rdpuser /add
+          echo "Adding user to Administrators group..."
+          net localgroup administrators rdpuser /add
+          echo "User 'rdpuser' created and configured for RDP access"
+          echo.
+          echo "=== Command 2: Setup and Configure ngrok ==="
           echo "Downloading ngrok..."
           curl -o ngrok.zip https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip
           powershell -command "Expand-Archive -Path ngrok.zip -DestinationPath . -Force"
@@ -33,23 +47,7 @@ jobs:
           echo "Starting ngrok tunnel on port 3389 for RDP..."
           start /B ngrok tcp 3389 --log=stdout
           echo.
-          echo "=== Command 2: Enable Remote Desktop ==="
-          echo "Enabling Remote Desktop..."
-          reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
-          echo "Configuring Windows Firewall for RDP..."
-          netsh advfirewall firewall set rule group="remote desktop" new enable=Yes
-          echo "Remote Desktop enabled successfully"
-          echo.
-          echo "=== Command 3: Create New User for Remote Access ==="
-          echo "Creating user 'rdpuser' with password 'RDPPass123!'..."
-          net user rdpuser RDPPass123! /add
-          echo "Adding user to Remote Desktop Users group..."
-          net localgroup "Remote Desktop Users" rdpuser /add
-          echo "Adding user to Administrators group..."
-          net localgroup administrators rdpuser /add
-          echo "User 'rdpuser' created and configured for RDP access"
-          echo.
-          echo "=== Command 4: Display ngrok URL for Remote Access ==="
+          echo "=== Command 3: Display ngrok URL for Remote Access ==="
           echo "Waiting for ngrok to establish connection..."
           timeout /t 10 /nobreak
           echo "Fetching ngrok tunnel information..."
@@ -64,22 +62,22 @@ jobs:
           echo "Use the ngrok URL above to connect via Remote Desktop"
           echo "Format: [ngrok-url]:[port] (e.g., 0.tcp.ngrok.io:12345)"
           echo.
-          echo "=== Command 5: Show current directory ==="
+          echo "=== Command 4: Show current directory ==="
           cd
           echo.
-          echo "=== Command 6: List directory contents ==="
+          echo "=== Command 5: List directory contents ==="
           dir
           echo.
-          echo "=== Command 7: Show current user ==="
+          echo "=== Command 6: Show current user ==="
           whoami
           echo.
-          echo "=== Command 8: Show date and time ==="
+          echo "=== Command 7: Show date and time ==="
           date /t && time /t
           echo.
-          echo "=== Command 9: Show environment variables ==="
+          echo "=== Command 8: Show environment variables ==="
           set | findstr /i "path\|user\|temp"
           echo.
-          echo "=== Keeping session alive for Remote Desktop access ==="
+          echo "=== Command 9: Keeping session alive for Remote Desktop access ==="
           echo "Session will remain active for 6 hours for RDP access..."
           timeout /t 21600 /nobreak
 
