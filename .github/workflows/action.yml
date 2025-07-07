@@ -77,6 +77,41 @@ jobs:
           echo "=== Command 8: Show environment variables ==="
           set | findstr /i "path\|user\|temp"
           echo.
-          echo "=== Command 9: Keeping session alive for Remote Desktop access ==="
-          echo "Session will remain active for 6 hours for RDP access..."
-          timeout /t 21600 /nobreak
+          echo "=== Command 9: Session Setup Complete ==="
+          echo "All commands executed successfully!"
+          echo "Remote Desktop is now accessible via ngrok tunnel"
+
+      - name: Keep Session Alive for Remote Desktop Access
+        shell: powershell
+        run: |
+          Write-Host "=== Keeping session alive for Remote Desktop access ==="
+          Write-Host "Starting keep-alive loop..."
+          Write-Host "Session will remain active for up to 6 hours for RDP access..."
+          Write-Host "GitHub Actions max runtime: 6 hours"
+          Write-Host ""
+
+          $endTime = (Get-Date).AddHours(6)
+          $counter = 0
+
+          while ((Get-Date) -lt $endTime) {
+              $counter++
+              $remaining = $endTime - (Get-Date)
+              Write-Host "[$((Get-Date).ToString('HH:mm:ss'))] Session active - Counter: $counter"
+              Write-Host "Time remaining: $($remaining.Hours)h $($remaining.Minutes)m $($remaining.Seconds)s"
+              
+              # Check if ngrok is still running
+              $ngrokProcess = Get-Process -Name "ngrok" -ErrorAction SilentlyContinue
+              if ($ngrokProcess) {
+                  Write-Host "ngrok tunnel is running (PID: $($ngrokProcess.Id))"
+              } else {
+                  Write-Host "WARNING: ngrok process not found!"
+              }
+              
+              Write-Host "Remote Desktop should be accessible via ngrok tunnel"
+              Write-Host "Username: rdpuser | Password: RDPPass123!"
+              Write-Host "----------------------------------------"
+              
+              Start-Sleep -Seconds 300  # Wait 5 minutes between checks
+          }
+
+          Write-Host "Session time limit reached. Ending keep-alive loop."
