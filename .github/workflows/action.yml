@@ -1,0 +1,53 @@
+name: GitHub Action for Portfolio
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "Windows command to run"
+        required: true
+        default: 'echo "Hello from Windows!"'
+        type: string
+
+jobs:
+  run-windows-command:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run 5 Windows Commands in Succession
+        shell: cmd
+        run: |
+          echo "=== Command 1: Show current directory ==="
+          cd
+          echo.
+          echo "=== Command 2: List directory contents ==="
+          dir
+          echo.
+          echo "=== Command 3: Show current user ==="
+          whoami
+          echo.
+          echo "=== Command 4: Show date and time ==="
+          date /t && time /t
+          echo.
+          echo "=== Command 5: Show environment variables ==="
+          set | findstr /i "path\|user\|temp"
+
+      - name: Run PowerShell Command (Alternative)
+        shell: powershell
+        run: |
+          Write-Host "PowerShell is also available"
+          Write-Host "Command executed: ${{ github.event.inputs.command }}"
+
+      - name: Show System Information
+        shell: cmd
+        run: |
+          echo "=== System Information ==="
+          systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"
+          echo.
+          echo "=== Current Directory ==="
+          cd
+          echo.
+          echo "=== Directory Contents ==="
+          dir
