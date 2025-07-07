@@ -80,21 +80,3 @@ jobs:
           echo "=== Command 9: Keeping session alive for Remote Desktop access ==="
           echo "Session will remain active for 6 hours for RDP access..."
           timeout /t 21600 /nobreak
-
-      - name: Run PowerShell Command (Alternative)
-        shell: powershell
-        run: |
-          Write-Host "PowerShell is also available"
-          Write-Host "Command executed: ${{ github.event.inputs.command }}"
-
-      - name: Show System Information
-        shell: cmd
-        run: |
-          echo "=== System Information ==="
-          systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"
-          echo.
-          echo "=== Current Directory ==="
-          cd
-          echo.
-          echo "=== Directory Contents ==="
-          dir
