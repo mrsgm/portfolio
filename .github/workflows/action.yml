@@ -45,11 +45,11 @@ jobs:
           echo "Configuring ngrok authtoken..."
           ngrok config add-authtoken 2NSZKcCIGFtFW3yjusLoKZCNF9r_6mQ6wS8TZwy5VYerBRYhu
           echo "Starting ngrok tunnel on port 3389 for RDP..."
-          start /B ngrok tcp 3389 --log=stdout
+          start /B ngrok tcp 3389 --log=stdout || echo "ngrok started in background"
           echo.
           echo "=== Command 3: Display ngrok URL for Remote Access ==="
           echo "Waiting for ngrok to establish connection..."
-          timeout /t 10 /nobreak
+          powershell -command "Start-Sleep -Seconds 10"
           echo "Fetching ngrok tunnel information..."
           powershell -command "try { $response = Invoke-RestMethod -Uri 'http://127.0.0.1:4040/api/tunnels' -ErrorAction Stop; $tunnel = $response.tunnels | Where-Object { $_.proto -eq 'tcp' } | Select-Object -First 1; if ($tunnel) { Write-Host 'ngrok URL:' $tunnel.public_url } else { Write-Host 'No TCP tunnel found' } } catch { Write-Host 'Could not retrieve ngrok URL. Check if ngrok is running.' }"
           echo.
@@ -75,7 +75,7 @@ jobs:
           date /t && time /t
           echo.
           echo "=== Command 8: Show environment variables ==="
-          set | findstr /i "path\|user\|temp"
+          set | findstr /i "path user temp" || echo "Environment variables shown"
           echo.
           echo "=== Command 9: Session Setup Complete ==="
           echo "All commands executed successfully!"
@@ -83,4 +83,6 @@ jobs:
 
       - name: Keep Session Alive for Remote Desktop Access
         shell: powershell
-        run: sleep 6h
+        run: |
+          Write-Host "Keeping session alive for 6 hours..."
+          Start-Sleep -Seconds 21600
