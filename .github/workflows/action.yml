@@ -1,5 +1,9 @@
 name: GitHub Action for Portfolio
 on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
   workflow_dispatch:
     inputs:
       command:
